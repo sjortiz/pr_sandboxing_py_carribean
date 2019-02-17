@@ -5,10 +5,12 @@ def query_prs_from_user(user: str) -> str:
             user(login: "%s") {
                 repositories(first: 100) {
                     nodes {
+                        sshUrl
                         name
                         open: pullRequests(first: 100, states: OPEN) {
                             nodes {
                                 number
+                                branch: headRefName
                             }
                         }
                         merged: pullRequests(first: 100, states: MERGED) {
