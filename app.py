@@ -15,21 +15,29 @@ if __name__ == '__main__':
     query_prs_from_sjoritz = query_prs_from_user('sjortiz')
 
     r = requests.post(
-            'https://api.github.com/graphql',
-            json={'query': query_prs_from_sjoritz},
-            headers={'Authorization': f'bearer {Token}'}
-        )
+        'https://api.github.com/graphql',
+        json={'query': query_prs_from_sjoritz},
+        headers={'Authorization': f'bearer {Token}'}
+    )
 
-    r = r.json().get('data', {}).get('user', {}).get('repositories', {})
+    if r.json().get('errors') or not r.ok:
 
-    if r:
+        print(r.text)
+        exit(r.status_code)
 
-        unparsed_repos = r.get('nodes')
+    info = r.json().get('data', {}).get('user', {}).get('repositories', {})
 
-        repos = [
-            {'name': repo['name'], 'open': repo['open']['prs']}
-            for repo in unparsed_repos
-            if repo['open']['prs']
-        ]
+    if not info:
+        print('No repositories')
 
-        print(repos)
+    unparsed_repos = info.get('nodes')
+
+    to_kill = []
+    to_create = []
+    to_maintain = []
+
+    for repo in unparsed_repos:
+
+        _open = repo.get('open', {}).get('nodes', [])
+        _merged = repo.get('merged', {}).get('nodes', [])
+        _closed = repo.get('closed', {}).get('nodes', [])

@@ -7,7 +7,17 @@ def query_prs_from_user(user: str) -> str:
                     nodes {
                         name
                         open: pullRequests(first: 100, states: OPEN) {
-                        prs: nodes {
+                            nodes {
+                                number
+                            }
+                        }
+                        merged: pullRequests(first: 100, states: MERGED) {
+                            nodes {
+                                number
+                            }
+                        }
+                        closed: pullRequests(first: 100, states: CLOSED) {
+                            nodes {
                                 number
                             }
                         }
