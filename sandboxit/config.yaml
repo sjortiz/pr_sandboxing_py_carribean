@@ -1,0 +1,7 @@
+general:
+  entity: user
+  entity_login: sjortiz
+  limit: 100
+
+security:
+  token: $USER_TOKEN

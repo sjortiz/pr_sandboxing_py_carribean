@@ -1,9 +1,7 @@
+# custom dependencies
+from utils import Yaml, miscellaneous
 from queries import Queries
 
-params = {
-    'entity': 'user',
-    'entity_login': 'sjortiz',
-    'limit': 100,
-}
+config = miscellaneous.fill_env_vars(Yaml.read_yaml('config.yaml'))
 
-print(Queries(**params).prs())
+Queries(**config['general']).prs()
