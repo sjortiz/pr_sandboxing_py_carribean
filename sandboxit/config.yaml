@@ -3,5 +3,7 @@ general:
   entity_login: sjortiz
   limit: 100
 
-security:
-  token: $USER_TOKEN
+api:
+  url: https://api.github.com/graphql
+  authorization: bearer
+  token: $GITHUB_TOKEN

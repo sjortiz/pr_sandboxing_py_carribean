@@ -1,5 +1,5 @@
 query {{
-    "{entity}"(login: "{entity_login}") {{
+    {entity}(login: "{entity_login}") {{
         repositories(first: {limit}) {{
             nodes {{
                 sshUrl

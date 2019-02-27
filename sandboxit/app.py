@@ -1,7 +1,6 @@
-# custom dependencies
-from utils import Yaml, miscellaneous
-from queries import Queries
+# Custom dependencies
+from queries import executor
 
-config = miscellaneous.fill_env_vars(Yaml.read_yaml('config.yaml'))
 
-Queries(**config['general']).prs()
+if __name__ == '__main__':
+    print(executor().retrieve_data())
