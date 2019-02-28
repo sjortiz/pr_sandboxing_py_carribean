@@ -10,28 +10,23 @@ class Graph:
 
         _tmp_dict = {}
 
-        if isinstance(data, dict):
+        data = data.get('data', {})
 
-            if 'name' in data and data['name'] in cls.config.get('ignore', ''):
-                return {}
+        if 'user' in data:
+            data = data['user']
 
-            for key, value in data.items():
-                _tmp_dict[key] = Graph.remove_ignores(value)
+        elif 'organization' in data:
+            data = data['organization']
 
-        elif isinstance(data, list):
+        data = (
+            data.get('repositories', {})
+            .get('nodes', [])
+        )
 
-            filtered = []
+        repositories = [
+            repo
+            for repo in data
+            if not repo.get('name') in cls.config.get('ignore', '')
+        ]
 
-            for item in data:
-
-                compute = Graph.remove_ignores(item)
-
-                if compute:
-                    filtered.append(compute)
-
-            return filtered
-
-        else:
-            return data
-
-        return _tmp_dict
+        return repositories
