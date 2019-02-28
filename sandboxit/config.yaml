@@ -1,9 +1,16 @@
 general:
   entity: user
   entity_login: sjortiz
-  limit: 100
+  limit: # can be numeric like 10 if there is inconsistency it will be set to 10
+    repository: 12
+    pr: 1
 
 api:
   url: https://api.github.com/graphql
   authorization: bearer
   token: $GITHUB_TOKEN
+
+# list of repositories to be ignored
+# ignore:
+  # - repoa
+  # - repob

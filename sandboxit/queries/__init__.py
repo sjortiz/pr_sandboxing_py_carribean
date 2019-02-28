@@ -5,13 +5,10 @@ from typing import Union
 import requests
 
 # Custom imports
-from utils import Yaml, miscellaneous
 from utils import Files
 
 
 class Queries(object):
-
-    __prs_query = Files.read_file('prs.graphql', location='./queries/')
 
     def __init__(
             self, entity: str, entity_login: str,
@@ -23,16 +20,44 @@ class Queries(object):
             'limit': limit,
         }
 
-    def prs(self):
-        return Queries.__prs_query.format(**self.__params)
+        self.pr_query = Queries.construct_query(
+            Queries.get_query('prs.graphql', location='./queries/'),
+            **self.__params)
+
+    @staticmethod
+    def construct_query(query: str, **kwargs: dict) -> str:
+
+        limit = {
+            'repository': 10,
+            'pr': 10,
+        }
+
+        _kwargs_limit = kwargs.get('limit')
+
+        if _kwargs_limit:
+
+            if isinstance(_kwargs_limit, dict):
+                limit = _kwargs_limit
+
+            elif isinstance(_kwargs_limit, int):
+
+                limit['repository'] = _kwargs_limit
+                limit['pr'] = _kwargs_limit
+
+        kwargs.update(limit)
+
+        return query.format(**kwargs)
+
+    @staticmethod
+    def get_query(query: str, location: str = '') -> str:
+        return Files.read_file(query, location=location)
 
 
 class executor(Queries):
 
-    def __init__(self):
+    def __init__(self, config):
 
-        self.__config = miscellaneous.fill_env_vars(
-            Yaml.read_yaml('config.yaml'))
+        self.__config = config
 
         super().__init__(**self.__config['general'])
 
@@ -41,14 +66,13 @@ class executor(Queries):
         self.__api_url = config_api.get('url', '')
         self.__api_authorization = config_api.get('authorization', '')
         self.__api_token = config_api.get('token', '')
-        self.__query = self.prs()
 
     def retrieve_data(self) -> Union[dict, None]:
 
         r = requests.post(
             self.__api_url,
             json={
-                'query': self.__query
+                'query': self.pr_query
             },
             headers={
                 'Authorization': (

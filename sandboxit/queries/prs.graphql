@@ -1,21 +1,21 @@
 query {{
     {entity}(login: "{entity_login}") {{
-        repositories(first: {limit}) {{
+        repositories(first: {repository}) {{
             nodes {{
                 sshUrl
                 name
-                open: pullRequests(first: {limit}, states: OPEN) {{
+                open: pullRequests(first: {pr}, states: OPEN) {{
                     nodes {{
                         number
                         branch: headRefName
                     }}
                 }}
-                merged: pullRequests(first: {limit}, states: MERGED) {{
+                merged: pullRequests(first: {pr}, states: MERGED) {{
                     nodes {{
                         number
                     }}
                 }}
-                closed: pullRequests(first: {limit}, states: CLOSED) {{
+                closed: pullRequests(first: {pr}, states: CLOSED) {{
                     nodes {{
                         number
                     }}
