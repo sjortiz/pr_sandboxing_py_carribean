@@ -9,6 +9,13 @@ query {{
                         number
                         branch: headRefName
                         state
+                        commits(last: 1) {{
+                            nodes{{
+                                commit{{
+                                    id
+                                }}
+                            }}
+                        }}
                     }}
                 }}
             }}
