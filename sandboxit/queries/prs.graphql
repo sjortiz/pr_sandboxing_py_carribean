@@ -4,20 +4,11 @@ query {{
             nodes {{
                 sshUrl
                 name
-                open: pullRequests(first: {pr}, states: OPEN) {{
+                pullRequests(first: {pr}) {{
                     nodes {{
                         number
                         branch: headRefName
-                    }}
-                }}
-                merged: pullRequests(first: {pr}, states: MERGED) {{
-                    nodes {{
-                        number
-                    }}
-                }}
-                closed: pullRequests(first: {pr}, states: CLOSED) {{
-                    nodes {{
-                        number
+                        state
                     }}
                 }}
             }}

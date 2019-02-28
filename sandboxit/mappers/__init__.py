@@ -8,8 +8,6 @@ class Graph:
         # and excludes from the response any repo that has
         # it's name in that list
 
-        _tmp_dict = {}
-
         data = data.get('data', {})
 
         if 'user' in data:
