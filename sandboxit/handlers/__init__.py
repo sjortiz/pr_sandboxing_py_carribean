@@ -1,18 +1,25 @@
 """Module to transform plain data in objects with methods"""
 
-# Built-in imports
-import datetime
+# Custom dependencies
+from utils import miscellaneous
 
 
 class Git:
     """Reshape and manage all the git related processes"""
 
-    def __init__(self, data: list) -> None:
+    def __init__(self, data: dict) -> None:
         """Receives the data and and fill the Git object"""
+        self.__repo_name = data.get('name', '')
         self.__ssh_url = data.get('sshUrl')
         self.__prs = data.get('pullRequests', {}).get('nodes', [])
         self.__prs = Git.__re_structure_prs(self.__prs)
-        self.__fetched = None
+        self.__folder_generate = False
+
+        if 'OPEN' in self.__prs:
+            self.__generate_main_folder()
+
+    def differ(self, data: dict) -> None:
+        ...
 
     @staticmethod
     def __re_structure_prs(prs: list) -> dict:
@@ -28,45 +35,67 @@ class Git:
             'OPEN': [{"id": 90, "state": "OPEN"}, ...]
         }
         """
-        __prs = {
+        _prs = {
             'MERGED': [],
             'OPEN': [],
             'CLOSED': [],
         }
 
         for pr in prs:
-            __prs[pr.get('state')].append(pr)
+            _prs[pr.get('state')].append(Pr(pr))
 
-        return __prs
+        return _prs
+
+    def __generate_main_folder(self) -> None:
+
+        miscellaneous.generate_folder(
+            f'./repositories/', self.__repo_name)
+
+        self.__folder_generate = True
 
 
-    def clone(self):
+class Pr:
+
+    def __init__(self, pr: dict, repo_name: str = None):
+
+        self.__repo_name = repo_name
+        self.__branch = pr['branch']
+        self.__number = pr['number']
+        self.__state = pr['state']
+        self.__commits = (
+            pr['commits']
+            .get('nodes', [{}])[0]
+            .get('commit', {})
+            .get('id')
+        )
+        self.__cloned = False
+
+    def clone(self) -> None:
         """Clone repo into local folder
         TODO:
             - Logic to clone
         """
+        if not self.__cloned:
 
-        __open_prs = self.__prs.get('OPEN')
+            miscellaneous.generate_folder(
+                f'./repositories/{self.__repo_name}/', self.__number)
 
-        if __open_prs:
+            self.__cloned = True
 
-            if not self.__fetched:
-
-                print('Pulling repository')
-                self.__fetched = datetime.datetime.now().time()
-
-
-    def pull(self): ...
+    def pull(self) -> None:
         """Updates the branch if there is any changes in the PR
-        TODO:
-            - Comparision with last commit id
-            - Checkout and pull branch into new folder
+            TODO:
+                - Comparision with last commit id
+                - Checkout and pull branch into new folder
         """
-
+        ...
 
 
 class Docker:
-    def __init__(self, data: list):
+    def __init__(self, data: list) -> None:
         pass
 
-    def pull(self): ...
+    def differ(self, data: dict) -> None:
+        ...
+
+    def pull(self) -> None: ...

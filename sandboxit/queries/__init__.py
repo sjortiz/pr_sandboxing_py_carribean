@@ -1,9 +1,7 @@
 # Built-in dependencies
 from typing import Union
-
 # Third-party dependencies
 import requests
-
 # Custom imports
 from utils import Files
 
@@ -53,7 +51,7 @@ class Queries(object):
         return Files.read_file(query, location=location)
 
 
-class executor(Queries):
+class Executor(Queries):
 
     def __init__(self, config):
 

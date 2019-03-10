@@ -1,5 +1,5 @@
 # built in imports
-import os
+from os import environ, makedirs, scandir, listdir
 from typing import Union
 # third party imports
 from yaml import safe_load, YAMLError
@@ -16,9 +16,30 @@ class miscellaneous:
                 config[key] = miscellaneous.fill_env_vars(value)
 
             elif isinstance(value, str) and value.startswith('$'):
-                config[key] = os.environ.get(value[1:])
+                config[key] = environ.get(value[1:])
 
         return config
+
+    @staticmethod
+    def generate_folder(path: str, name: str) -> None:
+
+        if not miscellaneous.find_file(path, name):
+            makedirs(path+name)
+
+    @staticmethod
+    def find_file(path: str, name: str) -> Union[object, None]:
+
+        with scandir(path) as it:
+
+            for entry in it:
+
+                if entry.name == name:
+                    return entry
+        return None
+
+    @staticmethod
+    def list_files_in_directory(path: str) -> list:
+        return listdir(path)
 
 
 class Files:

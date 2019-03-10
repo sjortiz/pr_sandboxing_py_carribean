@@ -1,24 +1,49 @@
 # Built-in dependencies
 import time
-from dataclasses import dataclass
 # Custom dependencies
 from utils import Yaml, miscellaneous
-from queries import executor
+from queries import Executor
 from mappers import Graph
 from handlers import Git
 from handlers import Docker
 
 
-@dataclass
 class Storage:
-    instances = dict()
+
+    __instance = None
+    instances = {}
+
+    def __new__(cls, *args, **kwargs):
+
+        if not cls.__instance:
+            cls.__instance = object.__new__(cls, *args, **kwargs)
+        return cls.__instance
+
+    def __getattr__(cls, attr):
+        return cls[attr]
 
 
 class Runner:
 
+    __instance = None
+
+    def __new__(cls, *args, **kwargs):
+
+        if not cls.__instance:
+            cls.__instance = object.__new__(cls)
+
+        return cls.__instance
+
     def __init__(self, repositories_data):
 
-        self.__storage = Storage()
+        print('executed')
+
+        try:
+            self.__storage
+
+        except AttributeError:
+            self.__storage = Storage()
+
         self.repositories_data = repositories_data
         self.handler()
 
@@ -34,24 +59,28 @@ class Runner:
                     'docker': Docker(repo),
                 }
 
+            else:
+
+                self.__storage.instances[name]['git'].differ(repo)
+                self.__storage.instances[name]['docker'].differ(repo)
+
     def iterate(self):
 
         for repo in self.__storage.instances:
-
             repo = self.__storage.instances[repo]
-            repo['git'].pull()
-            repo['docker'].pull()
+            # TODO: Logic to pull to git objects and trigger docker build
+            # and spin up of container
 
 
 if __name__ == '__main__':
 
     config = miscellaneous.fill_env_vars(Yaml.read_yaml('config.yaml'))
-    data = executor(config).retrieve_data()
-
     Graph.config = config
-    runner = Runner(Graph.remove_ignores(data))
+    executor = Executor(config)
 
     while True:
+
+        data = executor.retrieve_data()
+        runner = Runner(Graph.remove_ignores(data))
         runner.iterate()
         time.sleep(5)
-        print('\n\n')
