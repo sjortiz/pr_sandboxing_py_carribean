@@ -22,7 +22,7 @@ class Git:
         ...
 
     @staticmethod
-    def __re_structure_prs(prs: list) -> dict:
+    def __re_structure_prs(prs: list, repo_name=None) -> dict:
         """Group the prs by stage into a dictionary
         e.g:
         [
@@ -42,7 +42,7 @@ class Git:
         }
 
         for pr in prs:
-            _prs[pr.get('state')].append(Pr(pr))
+            _prs[pr.get('state')].append(Pr(pr, repo_name))
 
         return _prs
 
@@ -51,12 +51,17 @@ class Git:
         miscellaneous.generate_folder(
             f'./repositories/', self.__repo_name)
 
+        if miscellaneous.is_directory_empty(
+            f'./repositories/{self.__repo_name}'):
+            ...
+            # TODO: Git clone it
+
         self.__folder_generate = True
 
 
 class Pr:
 
-    def __init__(self, pr: dict, repo_name: str = None):
+    def __init__(self, pr: dict, repo_name: str = None) -> None:
 
         self.__repo_name = repo_name
         self.__branch = pr['branch']
@@ -79,6 +84,8 @@ class Pr:
 
             miscellaneous.generate_folder(
                 f'./repositories/{self.__repo_name}/', self.__number)
+
+            # Check if folder is empty
 
             self.__cloned = True
 

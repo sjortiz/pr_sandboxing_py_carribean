@@ -21,6 +21,10 @@ class miscellaneous:
         return config
 
     @staticmethod
+    def is_directory_empty(path: str) -> bool:
+        return miscellaneous.list_files_in_directory(path) == []
+
+    @staticmethod
     def generate_folder(path: str, name: str) -> None:
 
         if not miscellaneous.find_file(path, name):
