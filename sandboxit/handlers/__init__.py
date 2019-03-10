@@ -19,6 +19,7 @@ class Git:
             self.__generate_main_folder()
 
     def differ(self, data: dict) -> None:
+        # TODO: Logic to detect and update differences
         ...
 
     @staticmethod
@@ -103,6 +104,7 @@ class Docker:
         pass
 
     def differ(self, data: dict) -> None:
+        # TODO: Logic to detect and update differences
         ...
 
     def pull(self) -> None: ...
