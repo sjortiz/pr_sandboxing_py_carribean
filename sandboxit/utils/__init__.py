@@ -1,5 +1,5 @@
 # built in imports
-from os import environ, makedirs, scandir, listdir
+from os import environ, makedirs, scandir, listdir, path
 from typing import Union
 # third party imports
 from yaml import safe_load, YAMLError
@@ -21,14 +21,14 @@ class miscellaneous:
         return config
 
     @staticmethod
-    def is_directory_empty(path: str) -> bool:
-        return miscellaneous.list_files_in_directory(path) == []
+    def is_directory_empty(directory: str) -> bool:
+        return miscellaneous.list_files_in_directory(directory) == []
 
     @staticmethod
-    def generate_folder(path: str, name: str) -> None:
+    def generate_folder(directory: str, name: str = '') -> None:
 
-        if not miscellaneous.find_file(path, name):
-            makedirs(path+name)
+        if not miscellaneous.find_file(directory, name):
+            makedirs(path.join(directory, name))
 
     @staticmethod
     def find_file(path: str, name: str) -> Union[object, None]:
@@ -42,8 +42,8 @@ class miscellaneous:
         return None
 
     @staticmethod
-    def list_files_in_directory(path: str) -> list:
-        return listdir(path)
+    def list_files_in_directory(_path: str) -> list:
+        return listdir(_path)
 
 
 class Files:

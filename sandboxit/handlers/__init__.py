@@ -1,5 +1,8 @@
 """Module to transform plain data in objects with methods"""
-
+# Built-in dependencies
+import os
+# Third-party dependencies
+import sh
 # Custom dependencies
 from utils import miscellaneous
 
@@ -12,18 +15,20 @@ class Git:
         self.__repo_name = data.get('name', '')
         self.__ssh_url = data.get('sshUrl')
         self.__prs = data.get('pullRequests', {}).get('nodes', [])
-        self.__prs = Git.__re_structure_prs(self.__prs)
+        self.__prs = self.__re_structure_prs()
         self.__folder_generate = False
+        self.__generate_main_folder()
 
         if 'OPEN' in self.__prs:
-            self.__generate_main_folder()
+
+            for pr in self.__prs.get('OPEN', []):
+                pr.clone()
 
     def differ(self, data: dict) -> None:
         # TODO: Logic to detect and update differences
         ...
 
-    @staticmethod
-    def __re_structure_prs(prs: list, repo_name=None) -> dict:
+    def __re_structure_prs(self) -> dict:
         """Group the prs by stage into a dictionary
         e.g:
         [
@@ -42,8 +47,12 @@ class Git:
             'CLOSED': [],
         }
 
-        for pr in prs:
-            _prs[pr.get('state')].append(Pr(pr, repo_name))
+        for pr in self.__prs:
+
+            # TODO: Logic to turn down
+            _prs[pr.get('state')].append(Pr(
+                pr, self.__repo_name, self.__ssh_url
+            ))
 
         return _prs
 
@@ -52,21 +61,18 @@ class Git:
         miscellaneous.generate_folder(
             f'./repositories/', self.__repo_name)
 
-        if miscellaneous.is_directory_empty(
-            f'./repositories/{self.__repo_name}'):
-            ...
-            # TODO: Git clone it
-
         self.__folder_generate = True
 
 
 class Pr:
 
-    def __init__(self, pr: dict, repo_name: str = None) -> None:
+    def __init__(self, pr: dict,
+                 repo_name: str, ssh_url: str) -> None:
 
         self.__repo_name = repo_name
+        self.__ssh_url = ssh_url
         self.__branch = pr['branch']
-        self.__number = pr['number']
+        self.__number = str(pr['number'])
         self.__state = pr['state']
         self.__commits = (
             pr['commits']
@@ -78,15 +84,25 @@ class Pr:
 
     def clone(self) -> None:
         """Clone repo into local folder
-        TODO:
-            - Logic to clone
+        and checkouts to the branch
         """
+
         if not self.__cloned:
 
-            miscellaneous.generate_folder(
-                f'./repositories/{self.__repo_name}/', self.__number)
+            path = (f'./repositories/{self.__repo_name}',
+                    self.__number)
 
-            # Check if folder is empty
+            miscellaneous.generate_folder(*path)
+
+            path = os.path.join(*path)
+
+            git = sh.git.bake(_cwd=path)
+
+            if miscellaneous.is_directory_empty(path):
+
+                git = sh.git.bake(_cwd=path)
+                git.clone(self.__ssh_url, '.')
+                git.checkout(self.__branch)
 
             self.__cloned = True
 

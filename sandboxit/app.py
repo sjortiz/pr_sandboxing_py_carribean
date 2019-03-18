@@ -54,9 +54,13 @@ class Runner:
             name = repo.get('name')
 
             if name not in self.__storage.instances:
+
+                git = Git(repo)
+                docker = Docker(repo)
+
                 self.__storage.instances[name] = {
-                    'git': Git(repo),
-                    'docker': Docker(repo),
+                    'git': git,
+                    'docker': docker,
                 }
 
             else:
@@ -64,23 +68,16 @@ class Runner:
                 self.__storage.instances[name]['git'].differ(repo)
                 self.__storage.instances[name]['docker'].differ(repo)
 
-    def iterate(self):
-
-        for repo in self.__storage.instances:
-            repo = self.__storage.instances[repo]
-            # TODO: Logic to pull to git objects and trigger docker build
-            # and spin up of container
-
 
 if __name__ == '__main__':
 
-    config = miscellaneous.fill_env_vars(Yaml.read_yaml('config.yaml'))
+    config = miscellaneous.fill_env_vars(
+        Yaml.read_yaml('config.yaml'))
     Graph.config = config
     executor = Executor(config)
 
     while True:
 
         data = executor.retrieve_data()
-        runner = Runner(Graph.remove_ignores(data))
-        runner.iterate()
+        runner = Runner(repositories_data=Graph.remove_ignores(data))
         time.sleep(5)
